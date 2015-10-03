@@ -47,6 +47,10 @@
     
     audio.src = streamUrl;
 
+    audio.addEventListener('ended', function() {
+      $("#next-track").trigger("click");
+    });
+
     audio.addEventListener('canplay', function() {
 
       if (!temv.ready) {
