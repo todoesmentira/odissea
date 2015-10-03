@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>TEM Visualizer</title>
+		<link href='fonts/bebas.css' rel='stylesheet' type='text/css'>
+
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+			}
+
+			body {
+				background-color: #111;
+				margin: 0;
+				overflow: hidden;
+				font-family: bebas_neuebold;
+				font-weight: 400;
+			}
+
+			#bigTitle {
+				display: none;
+				font-family: 'bebas_neuebold';
+				font-size: 80pt;
+				text-shadow: 0px 0px 20px rgba(0,0,0,.7);
+				position: fixed;
+				top: 40%;
+				left: 0px;
+				text-align: center;
+				width: 100%;
+				color: white;
+				z-index: 99999;
+			}
+
+			#blocker {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0,0,0,0.5);
+			}
+
+			#instructions {
+
+				width: 100%;
+				height: 100%;
+
+				display: -webkit-box;
+				display: -moz-box;
+				display: box;
+
+				-webkit-box-orient: horizontal;
+				-moz-box-orient: horizontal;
+				box-orient: horizontal;
+
+				-webkit-box-pack: center;
+				-moz-box-pack: center;
+				box-pack: center;
+
+				-webkit-box-align: center;
+				-moz-box-align: center;
+				box-align: center;
+
+				color: #ffffff;
+				text-align: center;
+
+				cursor: pointer;
+
+			}
+
+			#web-gl-wrapper {
+				position: fixed;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+			}
+
+			/* Z-Indexes */
+			#web-gl-wrapper {
+				z-index: 49999;
+			}
+
+			.soundcloudlogo {
+				position: fixed;
+				bottom: 55px;
+				right: 180px;
+				z-index: 999999;
+			}
+
+			#enable-mouse img, #next-track img {
+				width: 100px;
+				height: 100px;
+			}
+
+			#enable-mouse {
+				cursor: pointer;
+				position: fixed;
+				bottom: 30px;
+				left: 30px;
+				width: 120px;
+				height: 120px;
+				background: rgba(0,0,0,.6);
+				color: #eee;
+				text-align: center;
+				border: none;
+				border-radius: 90px;
+				outline: none;
+				z-index: 999999;
+			}
+
+			#next-track {
+				cursor: pointer;
+				position: fixed;
+				bottom: 30px;
+				right: 30px;
+				width: 120px;
+				height: 120px;
+				background: rgba(0,0,0,.6);
+				color: #eee;
+				text-align: center;
+				border: none;
+				border-radius: 90px;
+				outline: none;
+				z-index: 999999;
+			}
+
+			#keys-help {
+				position: fixed;
+				bottom: 30px;
+				left: 50%;
+				width: 120px;
+				margin-left: -60px;
+				color: #eee;
+				text-align: center;
+				border: none;
+				outline: none;
+				z-index: 999999;
+			}
+			#keys-help div {
+				margin-top: -20px;
+				font-size: 12pt;
+				color: #ddd;
+			}
+
+			.clearfix {
+				clear: both;
+			}
+						
+			.sk-three-bounce {
+				display: none;
+				margin: 40px auto;
+				width: 80px;
+				text-align: center; 
+			}
+			
+			.sk-three-bounce .sk-child {
+				width: 20px;
+				height: 20px;
+				background-color: #aaa;
+				border-radius: 100%;
+				display: inline-block;
+				-webkit-animation: sk-three-bounce 1.4s ease-in-out 0s infinite both;
+			        animation: sk-three-bounce 1.4s ease-in-out 0s infinite both; 
+			}
+			
+			.sk-three-bounce .sk-bounce1 {
+				-webkit-animation-delay: -0.32s;
+			        animation-delay: -0.32s; 
+			}
+			
+			.sk-three-bounce .sk-bounce2 {
+				-webkit-animation-delay: -0.16s;
+        		animation-delay: -0.16s; 
+        	}
+			
+			@-webkit-keyframes sk-three-bounce {
+			  0%, 80%, 100% {
+			    -webkit-transform: scale(0);
+			            transform: scale(0); }
+			  40% {
+			    -webkit-transform: scale(1);
+			            transform: scale(1); } 
+			}
+			
+			@keyframes sk-three-bounce {
+			  0%, 80%, 100% {
+			    -webkit-transform: scale(0);
+			            transform: scale(0); }
+			  40% {
+			    -webkit-transform: scale(1);
+			            transform: scale(1); } 
+			}
+
+			#mainLoader {
+				top: 0;
+				background: black;
+				width: 100%;
+				height: 100%;
+				position: fixed;
+				text-align: center;
+				z-index: 9999999;
+			}
+
+			#mainLoader .sk-three-bounce {
+				display: block;
+				margin-top: 20%;
+			}
+
+		</style>
+	</head>
+	<body>
+
+		<div id="mainLoader">
+	   		<div class="sk-three-bounce">
+		      <div class="sk-child sk-bounce1"></div>
+		      <div class="sk-child sk-bounce2"></div>
+		      <div class="sk-child sk-bounce3"></div>
+		    </div>
+		</div>
+
+		<div id="bigTitle">
+		</div>
+
+		<a href="http://soundcloud.com" class="soundcloudlogo">
+		  <img src="https://developers.soundcloud.com/assets/powered_by_large_white-9c2af6a93ad2b1c541f423d9e9045980.png" />
+		</a>
+
+		<button id="enable-mouse">
+			<img src="images/icons/mouse.svg">
+		</button>
+
+		<div id="keys-help">
+			<img src="images/icons/keys.svg">
+			<div>TO WALK</div>
+		</div>
+
+    	<button id="next-track">
+    		<img src="images/icons/next.svg">
+    		<div class="sk-three-bounce">
+		      <div class="sk-child sk-bounce1"></div>
+		      <div class="sk-child sk-bounce2"></div>
+		      <div class="sk-child sk-bounce3"></div>
+		    </div>
+    	</button>
+
+		<script src="js/jquery-2.1.4.min.js"></script>
+
+		<!-- ThreeJS -->
+		<!--<script src="bower_components/threejs/build/three.min.js"></script>-->
+		<script src="js/three.min.js"></script>
+		<script src="js/PointerLockControls.js"></script>
+
+		<script src="js/EffectComposer.js"></script>
+		<script src="js/RenderPass.js"></script>
+		<script src="js/ShaderPass.js"></script>
+
+		<script src="js/CopyShader.js"></script>
+		<script src="js/ConvolutionShader.js"></script>
+		<script src="js/MaskPass.js"></script>
+		<script src="js/BloomPass.js"></script>
+		<script src="js/FilmPass.js"></script>
+		<script src="js/FXAAShader.js"></script>
+		<script src="js/FilmShader.js"></script>
+
+	    <script src="js/tween.min.js"></script>
+
+		<!--
+		 Icons:
+		 Keyboard by Simon Mettler from the Noun Project
+		 Next by Zech Nelson from the Noun Project
+		 Mouse by Rohith M S from the Noun Project
+		-->
+
+		<div id="web-gl-wrapper"></div>
+		
+		<script>
+
+			function TEMVisualizer() {
+
+				var self = this;
+
+				var camera, scene, renderer;
+				var geometry, material, mesh;
+
+				self.debugMode = false;
+
+				self.controls = null;
+				self.placedObjects = [];
+				self.raycaster = null;
+				
+				self.roomHeight = 30;
+				self.wallWidth = 2;
+				self.placementOffset = 0;
+
+				self.controlsEnabled = false;
+				self.moveForward = false;
+				self.moveBackward = false;
+				self.moveLeft = false;
+				self.moveRight = false;
+
+				self.prevTime = performance.now();
+				self.velocity = new THREE.Vector3();
+
+				self.ready = false;
+
+				self.setupCamera = function() {
+					self.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 2000 );
+				}
+
+				self.setupScene = function() {
+					self.scene = new THREE.Scene();
+					self.scene.fog = new THREE.Fog( 0x000000, 0, 600 );
+				}
+
+				self.setupLights = function() {
+
+					self.ambientLight = new THREE.AmbientLight( 0x050505 ); // soft white light
+					self.scene.add( self.ambientLight );
+
+					var dlight = new THREE.DirectionalLight( 0xCCCCCC, .4 );
+					dlight.position.set( 50, 50, 50 );
+					
+					dlight.castShadow = true;
+					if (self.debugMode) {
+						dlight.shadowCameraVisible = true;
+					}
+					dlight.shadowCameraNear = 2;
+					dlight.shadowCameraFar = 200;
+					var cameraSize = 80;
+
+					dlight.shadowCameraLeft = -cameraSize;
+					dlight.shadowCameraRight = cameraSize;
+					dlight.shadowCameraTop = cameraSize;
+					dlight.shadowCameraBottom = -cameraSize;
+					self.scene.add(dlight);
+
+					var lightBulbs = [
+						{ x: -30, y: 35, z: 0, color: 0xffffff, intensity: .6 },
+						{ x: 0, y: 35, z: 0, color: 0xffffff, intensity: .6 },
+						{ x: 30, y: 35, z: 0, color: 0xffffff, intensity: .6 },
+						{ x: -30, y: 50, z: -32, color: 0xffffff, intensity: .6 },
+						{ x: 0, y: 50, z: -32, color: 0xffffff, intensity: .6 },
+						{ x: 30, y: 50, z: -32, color: 0xffffff, intensity: .6 },
+						{ x: -30, y: 50, z: -64, color: 0xffffff, intensity: .6 },
+						{ x: 0, y: 50, z: -64, color: 0xffffff, intensity: .6 },
+						{ x: 30, y: 50, z: -64, color: 0xffffff, intensity: .6 }
+					]
+
+					self.pointLights = [];
+
+					lightBulbs.map(function(lightBulb) {
+
+						var plight = new THREE.PointLight( lightBulb.color, lightBulb.intensity, 50 );
+						plight.position.set( lightBulb.x, lightBulb.y, lightBulb.z );
+
+						if (self.debugMode) {
+							var lightGizmo = new THREE.BoxGeometry(1,1,1);
+							material = new THREE.MeshBasicMaterial({ color: 0xffff22 });
+							mesh = new THREE.Mesh(lightGizmo, material);
+							mesh.position.set( lightBulb.x, lightBulb.y, lightBulb.z );
+							self.scene.add(mesh);
+						}
+
+						self.pointLights.push(plight);
+
+						self.scene.add( self.pointLights[self.pointLights.length - 1] );
+
+					});
+
+
+				}
+
+				self.setupControls = function() {
+						self.controls = new THREE.PointerLockControls( self.camera );
+						//orbitControls = new THREE.OrbitControls(camera);
+						self.scene.add( self.controls.getObject() );
+
+						var xStart = -132 * 1.7, zStart = 128 * 1.7, xEnd = -132 * .7, zEnd = 128 * .7;
+
+						self.controls.getObject().position.x = xStart;
+						self.controls.getObject().position.z = zStart;
+						self.controls.getObject().rotation.y = THREE.Math.degToRad(-45);
+						
+						var position = { x : xStart, z: zStart };
+						var target = { x : xEnd, z: zEnd };
+						tween = new TWEEN.Tween(position).to(target, 10000);
+
+						tween.easing(TWEEN.Easing.Cubic.InOut)
+
+						tween.onUpdate(function(){
+						    self.controls.getObject().position.x = position.x;
+						    self.controls.getObject().position.z = position.z;
+						});
+
+						//tween.start();
+				}
+
+				self.setupSkyBox = function() {
+				
+					// axes
+					if (self.debugMode) {
+						var axes = new THREE.AxisHelper(100);
+						self.scene.add( axes );
+					}
+
+					var skyGeometry = new THREE.BoxGeometry( 1000, 1000, 1000 );	
+										
+					var imagePrefix = "images/skybox/night/";
+					var directions  = ["right", "left", "top", "bottom", "front", "back"];
+					var imageSuffix = ".jpg";
+					
+					var materialArray = [];
+					for (var i = 0; i < 6; i++)
+						materialArray.push( new THREE.MeshBasicMaterial({
+							map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
+							side: THREE.BackSide,
+							opacity: .5
+						}));
+					var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
+					
+					//var skyMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, side: THREE.BackSide } );
+					var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
+					skyBox.position.y = -100;
+					self.scene.add( skyBox );
+					//self.scene.add(sky);
+				}
+
+				self.setupDOMListeners = function() {
+
+					var onKeyDown = function ( event ) {
+
+						switch ( event.keyCode ) {
+
+							case 38: // up
+								self.moveForward = true;
+								break;
+
+							case 37: // left
+								self.moveLeft = true; break;
+
+							case 40: // down
+								self.moveBackward = true;
+								break;
+
+							case 39: // right
+								self.moveRight = true;
+								break;
+
+						}
+
+					};
+
+					var onKeyUp = function ( event ) {
+
+						switch( event.keyCode ) {
+
+							case 38: // up
+							case 87: // w
+								self.moveForward = false;
+								break;
+
+							case 37: // left
+							case 65: // a
+								self.moveLeft = false;
+								break;
+
+							case 40: // down
+							case 83: // s
+								self.moveBackward = false;
+								break;
+
+							case 39: // right
+							case 68: // d
+								self.moveRight = false;
+								break;
+
+						}
+
+					};
+
+					var onMouseDown = function() {
+						self.controls.enabled = true;
+					}
+
+					var onMouseUp = function() {
+						self.controls.enabled = false;
+					}
+
+					var onWindowResize = function() {
+						self.camera.aspect = window.innerWidth / window.innerHeight;
+						self.camera.updateProjectionMatrix();
+						self.renderer.setSize( window.innerWidth, window.innerHeight );
+					}
+
+					window.addEventListener( 'resize', onWindowResize, false );
+					document.addEventListener( 'keydown', onKeyDown, false );
+					document.addEventListener( 'keyup', onKeyUp, false );
+					//self.renderer.domElement.addEventListener( 'mouseup', onMouseUp, false );
+					//self.renderer.domElement.addEventListener( 'mousedown', onMouseDown, false );
+
+					$("#enable-vr").on("click", function(e) {
+						e.preventDefault();
+						self.manager.toggleVRMode();
+					});
+
+				}
+
+				self.setupRayCaster = function() {
+					self.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+				}
+
+				self.addFloor = function() {
+
+					// Wooden outer floor
+					var geometry = new THREE.PlaneBufferGeometry( 900, 900, 20, 20 );
+					geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+
+					var woodTexture = THREE.ImageUtils.loadTexture( 'images/noisefloor2.jpg' );
+					woodTexture.wrapS = THREE.RepeatWrapping;
+					woodTexture.wrapT = THREE.RepeatWrapping;
+					woodTexture.repeat.set( 10, 10 );
+
+					var material = new THREE.MeshLambertMaterial({
+						map: woodTexture,
+					});
+
+					mesh = new THREE.Mesh( geometry, material );
+					mesh.receiveShadow = true;
+					self.floor = mesh;
+					self.scene.add( self.floor );
+
+				}
+
+				self.setupRenderer = function() {
+					self.renderer = new THREE.WebGLRenderer({ antialias: true });
+					self.renderer.setClearColor( 0xffffff );
+					self.renderer.setPixelRatio( window.devicePixelRatio );
+					self.renderer.setSize( window.innerWidth, window.innerHeight );
+					self.renderer.shadowMapEnabled = true;
+				    self.renderer.shadowMapSoft = true;
+				    self.renderer.shadowMapBias = 0.0039;
+				    self.renderer.shadowMapDarkness = 0.8;
+				    self.renderer.shadowMapWidth = 1024;
+				    self.renderer.shadowMapHeight = 1024;
+
+					self.renderer.autoClear = false;
+
+					var renderModel = new THREE.RenderPass( self.scene, self.camera );
+					var effectBloom = new THREE.BloomPass( 1.5 );
+					var effectFilm = new THREE.FilmPass( 0.75, 0.25, 2048, false );
+
+					effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+
+					var width = window.innerWidth || 2;
+					var height = window.innerHeight || 2;
+
+					effectFXAA.uniforms[ 'resolution' ].value.set( 1 / width, 1 / height );
+
+					effectFilm.renderToScreen = true;
+
+					self.composer = new THREE.EffectComposer( self.renderer );
+
+					self.composer.addPass( renderModel );
+					self.composer.addPass( effectFXAA );
+					self.composer.addPass( effectBloom );
+					self.composer.addPass( effectFilm );
+					
+					document.getElementById("web-gl-wrapper").appendChild( self.renderer.domElement );
+				}
+
+				self.setupMosaic = function() {
+					RESOLUTION = 32;
+					TILE_SIZE = 4;
+			       	var gap = .2;
+
+					var offset = RESOLUTION / 2;
+					var colors = [0xefefef, 0x111111];
+
+					self.mosaicTiles = [];
+
+					var stoneTextures = [];
+
+					stoneTextures.push(THREE.ImageUtils.loadTexture( 'images/stone2.jpg' ));
+					stoneTextures.push(THREE.ImageUtils.loadTexture( 'images/stone3.jpg' ));
+					stoneTextures.push(THREE.ImageUtils.loadTexture( 'images/stone4.jpg' ));
+					
+					var stoneMaterial = new THREE.MeshLambertMaterial({
+				       map: stoneTextures[ Math.floor(Math.random() * 3) ],
+				       bumpMap: stoneTextures[ Math.floor(Math.random() * 3) ],
+				       specular: 0xffffff
+			       	});
+
+					var stoneMaterials = [];
+
+					stoneMaterials.push(new THREE.MeshLambertMaterial({
+				       map: stoneTextures[ 0 ],
+				       specular: 0xffffff
+			       	}));
+
+			       	stoneMaterials.push(new THREE.MeshLambertMaterial({
+				       map: stoneTextures[ 1 ],
+				       specular: 0xffffff
+			       	}));
+
+			       	stoneMaterials.push(new THREE.MeshLambertMaterial({
+				       map: stoneTextures[ 2 ],
+				       specular: 0xffffff
+			       	}));
+
+					for (var i = 0; i < RESOLUTION; i++) {
+						self.mosaicTiles[i] = [];
+						for (var j = 0; j < RESOLUTION; j++) {
+
+							var pillarGroup = new THREE.Group();
+
+							var mosaicGeometry = new THREE.BoxGeometry(TILE_SIZE, 50, TILE_SIZE);
+
+							var buffgeom = new THREE.BufferGeometry();
+							buffgeom.fromGeometry(mosaicGeometry);
+
+							var material = new THREE.MeshLambertMaterial({ 
+								color: colors[(j + i) % 2],
+								specular: 0xffffff
+							});
+
+							var pillarMesh = new THREE.Mesh(buffgeom, stoneMaterials[Math.floor(Math.random() * 3)]);
+							pillarMesh.castShadow = true;
+							pillarMesh.receiveShadow = true;
+
+							pillarGroup.add(pillarMesh);
+
+							var tileGeometry = new THREE.PlaneBufferGeometry(TILE_SIZE, TILE_SIZE, 1, 1);
+							tileGeometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+
+							var tileMesh = new THREE.Mesh(tileGeometry, material);
+
+							tileMesh.position.set(0, 25.1, 0);
+							tileMesh.castShadow = true;
+							tileMesh.receiveShadow = true;
+
+							pillarGroup.add(tileMesh);
+
+							self.mosaicTiles[i][j] = pillarGroup;
+
+							var xPos = (i - offset) * (TILE_SIZE + gap);
+							var zPos = (j - offset) * (TILE_SIZE + gap);
+
+							self.mosaicTiles[i][j].position.set(xPos, 2, zPos);
+							self.scene.add(self.mosaicTiles[i][j]);
+						}
+					}
+				}
+
+				self.init = function() {
+
+					self.pointerLockHandler();
+
+					self.setupScene();
+					self.setupCamera();
+					self.addFloor();
+					self.setupSkyBox();
+					self.setupLights();
+
+					self.setupRayCaster();
+
+					self.setupMosaic();
+
+					self.loadLogo();
+
+					self.setupRenderer();
+
+					self.setupControls();
+
+					self.setupDOMListeners();
+
+					self.animate();
+
+				}
+
+				self.animate = function() {
+
+					TWEEN.update();
+
+					requestAnimationFrame( self.animate );
+
+					// Was: if ( controlsEnabled )
+					if ( true ) {
+
+						self.raycaster.ray.origin.copy( self.controls.getObject().position );
+						self.raycaster.ray.origin.y -= 10;
+
+						//var intersections = self.raycaster.intersectObjects( self.placedObjects );
+						//var isOnObject = intersections.length > 0;
+
+						var time = performance.now();
+						var delta = ( time - self.prevTime ) / 1000;
+
+						self.velocity.x -= self.velocity.x * 10.0 * delta;
+						self.velocity.z -= self.velocity.z * 10.0 * delta;
+
+						self.velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+
+						if ( self.moveForward ) self.velocity.z -= 400.0 * delta;
+						if ( self.moveBackward ) self.velocity.z += 400.0 * delta;
+
+						if ( self.moveLeft ) self.velocity.x -= 400.0 * delta;
+						if ( self.moveRight ) self.velocity.x += 400.0 * delta;
+
+						self.controls.getObject().translateX( self.velocity.x * delta );
+						self.controls.getObject().translateY( self.velocity.y * delta );
+						self.controls.getObject().translateZ( self.velocity.z * delta );
+
+						if ( self.controls.getObject().position.y < 23 ) {
+
+							self.velocity.y = 0;
+							self.controls.getObject().position.y = 23;
+
+							canJump = true;
+
+						}
+
+						self.prevTime = time;
+
+					}
+
+					if (typeof audioEngine != "undefined") {
+						if (audioEngine.drawAgain) {
+							audioEngine.drawAgain();
+							self.composer.render();
+						}
+					}
+
+				}
+
+				self.loadLogo = function() {
+
+					var loader = new THREE.JSONLoader();
+					loader.load( "Logo3d.js", function ( loadedModel, loadedMaterials ) {
+
+						function getJSONMesh(json) {
+							//var material = new THREE.MeshPhongMaterial( { color: 0xeeeeee, specular: 0xffffff, emmisive: 0xfafafa } );
+							var material = new THREE.MeshPhongMaterial( { color: 0xeeeeee, specular: 0xffffff, emmisive: 0xfafafa, opacity: .4 } );
+						    var mesh = new THREE.Mesh( json, material );
+						    mesh.position.set( -5, 22, -75 );
+						    mesh.scale.set(.5, .5, .5);
+						    mesh.overdraw = true;
+						    return mesh;
+						}
+
+						self.logo = getJSONMesh(loadedModel);
+
+						self.logo.traverse( function ( node ) {
+							if ( node instanceof THREE.Mesh ) {
+								node.castShadow = true;
+								node.receiveShadow = true;
+							}
+							if ( node.material ) {
+						        //node.material.side = THREE.DoubleSide;
+						    }
+						} );
+
+						self.scene.add(self.logo);
+												
+					});
+
+				}
+
+				self.cancelPointerLock = function() {
+
+					// Ask the browser to lock the pointer
+					element.exitPointerLock = element.exitPointerLock || element.mozExitPointerLock || element.exitRequestPointerLock;
+
+					element.exitPointerLock();
+
+				}
+
+				self.pointerLockHandler = function() {
+					var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+
+					var pointerLockToggle = document.getElementById("enable-mouse");
+
+					if ( havePointerLock ) {
+
+						var element = document.body;
+
+						var pointerlockchange = function ( event ) {
+
+							if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
+
+								self.controlsEnabled = true;
+								self.controls.enabled = true;
+
+							} else {
+
+								self.controls.enabled = false;
+
+							}
+
+						}
+
+						var pointerlockerror = function ( event ) {
+
+
+						}
+
+						// Hook pointer lock state change events
+						document.addEventListener( 'pointerlockchange', pointerlockchange, false );
+						document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
+						document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
+
+						document.addEventListener( 'pointerlockerror', pointerlockerror, false );
+						document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
+						document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
+
+						pointerLockToggle.addEventListener( 'click', function ( event ) {
+
+							// Ask the browser to lock the pointer
+							element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+
+							element.requestPointerLock();
+
+
+						}, false );
+
+					} else {
+
+						//pointerLockToggle.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
+
+					}
+				}
+
+
+			}
+
+			temv = new TEMVisualizer();
+			temv.init();
+
+		</script>
+
+		<script src="temvisualizer.js"></script>  
+
+	</body>
+</html>
+<?php
+error_log("\n" . date("d/m/Y H:i:s") . " - [" . $_SERVER["REMOTE_ADDR"] . "] - " . $_SERVER["HTTP_USER_AGENT"], 3, "_visitas.log");
+?>
